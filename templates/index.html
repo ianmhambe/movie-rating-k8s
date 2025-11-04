@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 Movie Ratings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .search-bar {
+            max-width: 600px;
+            margin: 30px auto;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            outline: none;
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .movie-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+
+        .movie-info {
+            padding: 20px;
+        }
+
+        .movie-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .movie-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .movie-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .rating-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .stars {
+            font-size: 1.5em;
+            color: #ffc107;
+        }
+
+        .rating-info {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 40px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
+            cursor: pointer;
+            color: #666;
+            background: none;
+            border: none;
+        }
+
+        .modal-header {
+            margin-bottom: 30px;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 10px;
+            font-size: 2em;
+            margin: 20px 0;
+        }
+
+        .star {
+            cursor: pointer;
+            color: #ddd;
+            transition: color 0.2s;
+        }
+
+        .star.active,
+        .star:hover {
+            color: #ffc107;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .reviews-section {
+            margin-top: 40px;
+        }
+
+        .review-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .reviewer-name {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .review-stars {
+            color: #ffc107;
+        }
+
+        .review-text {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .review-date {
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        .no-reviews {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 Movie Ratings</h1>
+            <p class="subtitle">Rate and review your favorite movies</p>
+        </header>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search movies by title or genre...">
+        </div>
+
+        <div class="movies-grid" id="moviesGrid"></div>
+    </div>
+
+    <!-- Movie Detail Modal -->
+    <div class="modal" id="movieModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">×</button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        let allMovies = [];
+        let currentMovie = null;
+        let selectedRating = 0;
+
+        // Load movies on page load
+        async function loadMovies() {
+            try {
+                const response = await fetch('/api/movies');
+                const data = await response.json();
+                allMovies = data.movies;
+                displayMovies(allMovies);
+            } catch (error) {
+                console.error('Error loading movies:', error);
+            }
+        }
+
+        function displayMovies(movies) {
+            const grid = document.getElementById('moviesGrid');
+            
+            if (movies.length === 0) {
+                grid.innerHTML = '<p style="color: white; text-align: center; grid-column: 1/-1;">No movies found</p>';
+                return;
+            }
+
+            grid.innerHTML = movies.map(movie => `
+                <div class="movie-card" onclick="openMovieDetail('${movie.id}')">
+                    <img src="${movie.poster}" alt="${movie.title}" class="movie-poster">
+                    <div class="movie-info">
+                        <div class="movie-title">${movie.title}</div>
+                        <div class="movie-meta">
+                            <span>${movie.year}</span>
+                            <span>${movie.genre}</span>
+                        </div>
+                        <div class="movie-description">${movie.description}</div>
+                        <div class="rating-section">
+                            <div>
+                                <div class="stars">${getStars(movie.average_rating)}</div>
+                                <div class="rating-info">
+                                    ${movie.average_rating > 0 ? movie.average_rating.toFixed(1) : 'No ratings yet'}
+                                    (${movie.total_ratings} ${movie.total_ratings === 1 ? 'rating' : 'ratings'})
+                                </div>
+                            </div>
+                            <button class="btn" onclick="event.stopPropagation(); openMovieDetail('${movie.id}')">
+                                Rate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            return '★'.repeat(fullStars) + 
+                   (hasHalfStar ? '⯨' : '') + 
+                   '☆'.repeat(emptyStars);
+        }
+
+        async function openMovieDetail(movieId) {
+            try {
+                const response = await fetch(`/api/movies/${movieId}`);
+                const data = await response.json();
+                currentMovie = data.movie;
+                selectedRating = 0;
+                
+                displayMovieDetail();
+                document.getElementById('movieModal').classList.add('active');
+            } catch (error) {
+                console.error('Error loading movie details:', error);
+            }
+        }
+
+        function displayMovieDetail() {
+            const modalBody = document.getElementById('modalBody');
+            
+            modalBody.innerHTML = `
+                <div class="modal-header">
+                    <h2>${currentMovie.title} (${currentMovie.year})</h2>
+                    <p style="color: #666;">${currentMovie.genre}</p>
+                    <div style="margin-top: 15px;">
+                        <div class="stars" style="font-size: 2em;">${getStars(currentMovie.average_rating)}</div>
+                        <div class="rating-info" style="font-size: 1.1em; margin-top: 5px;">
+                            ${currentMovie.average_rating > 0 ? currentMovie.average_rating.toFixed(1) : 'No ratings yet'}
+                            (${currentMovie.total_ratings} ${currentMovie.total_ratings === 1 ? 'rating' : 'ratings'})
+                        </div>
+                    </div>
+                </div>
+
+                <p style="line-height: 1.8; color: #666; margin-bottom: 30px;">
+                    ${currentMovie.description}
+                </p>
+
+                <div style="background: #f9f9f9; padding: 30px; border-radius: 15px; margin-bottom: 30px;">
+                    <h3 style="margin-bottom: 20px;">Add Your Review</h3>
+                    
+                    <div class="form-group">
+                        <label>Your Rating</label>
+                        <div class="star-rating" id="starRating">
+                            ${[1,2,3,4,5].map(i => `<span class="star" data-rating="${i}" onclick="setRating(${i})">☆</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Your Name</label>
+                        <input type="text" id="reviewerName" placeholder="Enter your name (optional)">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Your Review</label>
+                        <textarea id="reviewText" placeholder="Share your thoughts about this movie..."></textarea>
+                    </div>
+
+                    <button class="btn" onclick="submitReview()" style="width: 100%; padding: 15px; font-size: 1.1em;">
+                        Submit Review
+                    </button>
+                </div>
+
+                <div class="reviews-section">
+                    <h3 style="margin-bottom: 20px;">Reviews (${currentMovie.reviews.length})</h3>
+                    <div id="reviewsList">
+                        ${currentMovie.reviews.length === 0 
+                            ? '<div class="no-reviews">No reviews yet. Be the first to review!</div>'
+                            : currentMovie.reviews.slice().reverse().map(review => `
+                                <div class="review-card">
+                                    <div class="review-header">
+                                        <span class="reviewer-name">${review.name}</span>
+                                        <span class="review-stars">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</span>
+                                    </div>
+                                    <div class="review-text">${review.review}</div>
+                                    <div class="review-date">${new Date(review.timestamp).toLocaleDateString()}</div>
+                                </div>
+                            `).join('')
+                        }
+                    </div>
+                </div>
+            `;
+        }
+
+        function setRating(rating) {
+            selectedRating = rating;
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                    star.textContent = '★';
+                } else {
+                    star.classList.remove('active');
+                    star.textContent = '☆';
+                }
+            });
+        }
+
+        async function submitReview() {
+            if (selectedRating === 0) {
+                alert('Please select a rating');
+                return;
+            }
+
+            const reviewText = document.getElementById('reviewText').value.trim();
+            if (!reviewText) {
+                alert('Please write a review');
+                return;
+            }
+
+            const reviewerName = document.getElementById('reviewerName').value.trim() || 'Anonymous';
+
+            try {
+                const response = await fetch(`/api/movies/${currentMovie.id}/review`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        name: reviewerName,
+                        review: reviewText,
+                        rating: selectedRating
+                    })
+                });
+
+                if (response.ok) {
+                    // Reload movie details
+                    await openMovieDetail(currentMovie.id);
+                    // Reload all movies to update ratings
+                    await loadMovies();
+                    alert('Review submitted successfully!');
+                } else {
+                    alert('Error submitting review');
+                }
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                alert('Error submitting review');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('movieModal').classList.remove('active');
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            if (query === '') {
+                displayMovies(allMovies);
+            } else {
+                const filtered = allMovies.filter(movie => 
+                    movie.title.toLowerCase().includes(query) || 
+                    movie.genre.toLowerCase().includes(query)
+                );
+                displayMovies(filtered);
+            }
+        });
+
+        // Close modal on background click
+        document.getElementById('movieModal').addEventListener('click', (e) => {
+            if (e.target.id === 'movieModal') {
+                closeModal();
+            }
+        });
+
+        // Load movies on page load
+        loadMovies();
+    </script>
+</body>
+</html>
